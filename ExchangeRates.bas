@@ -12,13 +12,13 @@ Function GetExchangeRatesFromHTML(sHTMLVal As String, Optional cERsExisting As c
     Dim sSearchString As String, sRegionString As String
     Dim sMonthSearch As String, sMonth As String, sYear As String, sExRate As String
     Dim lStart As Long, lEnd As Long, lStartMth As Long, lEndMth As Long, lStartYr As Long, lEndYr As Long
-    Dim lStartEx As Long, lEndEx As Long, cER As cExchangeRate, cERs As New cExchangeRates
+    Dim lStartEx As Long, lEndEx As Long, cER As cExchangeRate, cers As New cExchangeRates
     Dim vCurrencyCodes As Variant
     Dim sFirstMonthYear As String, sThisMonthYear As String
     Dim lStartPayment As Long, sPayment As String, sPaymentConverted As String
     
     
-    If Not cERsExisting Is Nothing Then Set cERs = cERsExisting
+    If Not cERsExisting Is Nothing Then Set cers = cERsExisting
     
     '========================================================================
     ' Check the first month and year in the source
@@ -76,7 +76,7 @@ Function GetExchangeRatesFromHTML(sHTMLVal As String, Optional cERsExisting As c
             
             Application.StatusBar = "Adding Exchange Rate: " & cER.Year & ", " & cER.Month & ", " & cER.Region & ", " & cER.CurrencyCode & ", " & cER.ExchangeRate
             
-            cERs.Add cER
+            cers.Add cER
         End If
         
         lStartMth = VBA.InStr(lStart, sHTMLVal, sMonthSearch)           'Check for the month again
@@ -102,7 +102,7 @@ Function GetExchangeRatesFromHTML(sHTMLVal As String, Optional cERsExisting As c
     Application.StatusBar = False
     
     'Assign the output
-    If Not cERs Is Nothing Then Set GetExchangeRatesFromHTML = cERs
+    If Not cers Is Nothing Then Set GetExchangeRatesFromHTML = cers
 End Function
 
 Function RemoveTabCharacters(sString As String) As String
@@ -135,7 +135,7 @@ Function GetExchangeRatesFromWorksheet(wkFromSheet As Worksheet) As cExchangeRat
     Dim vData As Variant
     Dim rr As Integer, cc As Integer
     Dim sDate As String, sMonth As String, sYear As String
-    Dim cER As cExchangeRate, cERs As New cExchangeRates
+    Dim cER As cExchangeRate, cers As New cExchangeRates
     
     vData = wkFromSheet.UsedRange
     
@@ -159,16 +159,16 @@ Function GetExchangeRatesFromWorksheet(wkFromSheet As Worksheet) As cExchangeRat
                     cER.RegionCode = vData(rr, 1)
                     cER.ExchangeRate = vData(rr, cc)
                     
-                    cERs.Add cER
+                    cers.Add cER
                 End If
             Next rr
         End If
     Next cc
     
-    If Not cERs Is Nothing Then Set GetExchangeRatesFromWorksheet = cERs
+    If Not cers Is Nothing Then Set GetExchangeRatesFromWorksheet = cers
 End Function
 
-Sub PutExchangeRatesInWorksheet(wsToSheet As Worksheet, cERs As cExchangeRates)
+Sub PutExchangeRatesInWorksheet(wsToSheet As Worksheet, cers As cExchangeRates)
     '---------------------------------------------------------------------------------------------------------
     ' Description: Function to write the exchange rates to a worksheet
     ' Inputs:
@@ -185,7 +185,7 @@ Sub PutExchangeRatesInWorksheet(wsToSheet As Worksheet, cERs As cExchangeRates)
     ReDim sCountries(1 To 50)
     
     'Guess we should check first
-    If cERs Is Nothing Then Exit Sub
+    If cers Is Nothing Then Exit Sub
     
     'Start up the counters
     iCtrMonths = 1
@@ -193,7 +193,7 @@ Sub PutExchangeRatesInWorksheet(wsToSheet As Worksheet, cERs As cExchangeRates)
     
     'We need to get a count of the number of months and also the number of countries so the
     'array can be dimensioned
-    For Each cER In cERs
+    For Each cER In cers
         'Check for the months first
         If iCtrMonths = 1 Then
             sMonths(1) = cER.Month & cER.Year
@@ -266,7 +266,7 @@ Sub PutExchangeRatesInWorksheet(wsToSheet As Worksheet, cERs As cExchangeRates)
     Next ii
     
     'Next loop through the exchange rate objects and place in the data array
-    For Each cER In cERs
+    For Each cER In cers
         With cER
             iRow = Application.WorksheetFunction.Match(.Month & .Year, sMonths, 0)
             iCol = Application.WorksheetFunction.Match(.RegionCode, sCountries, 0)
@@ -547,3 +547,107 @@ Function CurrencyCodes() As Variant
     CurrencyCodes = curCode
 End Function
 
+Function CreateSampleExchangeRates() As cExchangeRates
+    'This sub simply creates a collection of exchange rates
+    'to provide an example of how they are required on the worksheet
+    Dim cER As cExchangeRate, cers As cExchangeRates
+    
+    Set cers = New cExchangeRates
+    Set cER = New cExchangeRate
+
+    With cER
+        .CurrencyCode = "AU"
+        .Region = "Australia"
+        .RegionCode = "AUS"
+        .ExchangeRate = 1#
+        .Month = "August"
+        .Year = "2008"
+    End With
+    cers.Add cER
+    
+    Set cER = Nothing
+    Set cER = New cExchangeRate
+    With cER
+        .CurrencyCode = "CAN"
+        .Region = "Canada"
+        .RegionCode = "CA"
+        .ExchangeRate = 0.95168
+        .Month = "August"
+        .Year = "2008"
+    End With
+    cers.Add cER
+    
+    Set cER = Nothing
+    Set cER = New cExchangeRate
+    With cER
+        .CurrencyCode = "EUR"
+        .Region = "Europe"
+        .RegionCode = "EU"
+        .ExchangeRate = 1.12291
+        .Month = "August"
+        .Year = "2008"
+    End With
+    cers.Add cER
+    
+    Set cER = Nothing
+    Set cER = New cExchangeRate
+    With cER
+        .CurrencyCode = "GBR"
+        .Region = "Great Britain"
+        .RegionCode = "GB"
+        .ExchangeRate = 1.58013
+        .Month = "August"
+        .Year = "2008"
+    End With
+    cers.Add cER
+    
+    Set cER = Nothing
+    Set cER = New cExchangeRate
+    With cER
+        .CurrencyCode = "JPY"
+        .Region = "Japan"
+        .RegionCode = "JP"
+        .ExchangeRate = 1.25714285714286E-02
+        .Month = "August"
+        .Year = "2008"
+    End With
+    cers.Add cER
+    
+    Set cER = Nothing
+    Set cER = New cExchangeRate
+    With cER
+        .CurrencyCode = "MXN"
+        .Region = "Mexico"
+        .RegionCode = "MX"
+        .ExchangeRate = 7.50992063492064E-02
+        .Month = "August"
+        .Year = "2008"
+    End With
+    cers.Add cER
+    
+    Set cER = Nothing
+    Set cER = New cExchangeRate
+    With cER
+        .CurrencyCode = "USA"
+        .Region = "United States of America"
+        .RegionCode = "US"
+        .ExchangeRate = 1.02005
+        .Month = "August"
+        .Year = "2008"
+    End With
+    cers.Add cER
+    
+    Set cER = Nothing
+    Set cER = New cExchangeRate
+    With cER
+        .CurrencyCode = "USD - RoW"
+        .Region = "Rest of the World"
+        .RegionCode = "WW"
+        .ExchangeRate = 1.02005
+        .Month = "August"
+        .Year = "2008"
+    End With
+    cers.Add cER
+    
+    Set CreateSampleExchangeRates = cers
+End Function

@@ -3,8 +3,8 @@ Option Explicit
 
 Sub PrepareWorkbook()
     Dim newWB As Workbook
-    Dim wsOptions As Worksheet, wsCurrencyCodes As Worksheet, wsExchangeRates As Worksheet
-    Dim objDownload As Object, objReadRpts As Object
+    Dim wsOptions As Worksheet, wsExchangeRates As Worksheet
+    Dim objDownload As Object, objReadRpts As Object, cers As cExchangeRates
     
     Set newWB = ThisWorkbook
 
@@ -199,14 +199,22 @@ Sub PrepareWorkbook()
         .PatternTintAndShade = 0
     End With
     
+    'On the Mac it appears OLE Automation isn't set by default which is required for the collection objects.  Fix that.
     Dim ref As Object
     Set ref = ThisWorkbook.VBProject.References.AddFromGuid("{00020430-0000-0000-C000-000000000046}", 0, 0)
     Set ref = Nothing
+    
+    'Put some sample exchange rates in the workbook
+    Set cers = CreateSampleExchangeRates
+    PutExchangeRatesInWorksheet wsExchangeRates, cers
+    
+    Set newWB = Nothing
+    Set wsExchangeRates = Nothing:  Set wsOptions = Nothing
     
     MsgBox "You will need to save this workbook as a '.xlsm' file before some of the formula will work."
     Exit Sub
 NotFreshWorkbook:
     MsgBox "This doesn't look like a new workbook." & vbCrLf & "Please start with a fresh workbook."
-    
 
 End Sub
+
