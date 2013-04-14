@@ -18,13 +18,12 @@ Sub LogintoiTunesConnect()
     Dim sPostInformation As String, sLoginURL As String, sPaymentsURL As String
     Dim sLoginPageHTML As String, sLoginResponse As String, sPaymentsResponse As String, sSalesAndTrendsURL As String, sSalesAndTrendsResponse As String
     Dim iStart As Integer, iEnd As Integer, bProceedWithDownload As Boolean, iMonthYearIndex As Integer
-    Dim sDivider As String, sVendorID As String, sWorksheets() As String, sMonthFirst As String
+    Dim sDivider As String, sWorksheets() As String, sMonthFirst As String
     ReDim sDownloadedAlready(1 To 12) As String
     
     'TODO:
     '1. Get the vendor ID from the Sales and Trends page
     '2. Support multiple vendors
-    'http://www.experts-exchange.com/Software/Office_Productivity/Office_Suites/MS_Office/Excel/Q_20929745.html
     
     'Start by initialising
     If Not General.GeneralInitialise Then Exit Sub
@@ -83,9 +82,7 @@ Sub LogintoiTunesConnect()
         Call MsgBox("Cannot Login to iTunes Connect, please check your username/password", vbOK, "Login Error")
         Exit Sub
     End If
-    
-    Call SaveStringToFile(sLoginResponse, "D:\LoginResponse.txt")
-    
+        
     'Look for the sales and trends to get the vendor ID
     iStart = VBA.InStr(1, sLoginResponse, "alt=""Sales and Trends")
     iStart = VBA.InStr(iStart - 170, sLoginResponse, "/WebObjects/iTunesConnect.woa")
@@ -96,10 +93,7 @@ Sub LogintoiTunesConnect()
     objHTTP.Open "POST", urlITCBase & sSalesAndTrendsURL, False
     objHTTP.send ("")
     sSalesAndTrendsResponse = objHTTP.responseText
-    
-    'Get the Vendor ID for the response
-    sVendorID = "80121363"
-    
+        
     'Navigate back to the original page
     objHTTP.Open "POST", urlITCBase, False
     objHTTP.send ("")
@@ -177,25 +171,24 @@ Sub LogintoiTunesConnect()
         objHTTP.send (sPaymentsReportPostData)
         sEarningsRepsonse = objHTTP.responseText
         
-        Dim cERs As New cExchangeRates, bExchangeRate As Boolean
+        Dim cers As New cExchangeRates, bExchangeRate As Boolean
         Dim sEarningsFormURL As String
         
-        If Not bOverWriteData Then Set cERs = GetExchangeRatesFromWorksheet(ThisWorkbook.Worksheets("Exchange Rates"))
+        If Not bOverWriteData Then Set cers = GetExchangeRatesFromWorksheet(ThisWorkbook.Worksheets("Exchange Rates"))
         
         Do
         
             bExchangeRate = False
             
-            iCERCount = cERs.Count
-            Set cERs = GetExchangeRatesFromHTML(sEarningsRepsonse, cERs)
-            If cERs.Count > iCERCount Then bExchangeRate = True
+            iCERCount = cers.Count
+            Set cers = GetExchangeRatesFromHTML(sEarningsRepsonse, cers)
+            If cers.Count > iCERCount Then bExchangeRate = True
             
             sParse = "<form name=""mainForm"" enctype=""multipart/form-data"" method=""post"" action="""
             iStart = VBA.InStr(1, sEarningsRepsonse, sParse) + VBA.Len(sParse)
             iEnd = VBA.InStr(iStart, sEarningsRepsonse, """>")
             sEarningsFormURL = VBA.Mid$(sEarningsRepsonse, iStart, iEnd - iStart)
             
-            Call SaveStringToFile(sEarningsRepsonse, "D:\sEarnsResponseFirst.txt")
             sFinancialReportSelects = GetArrayofInstancesFromHTML(sEarningsRepsonse, "select", "")
             sMonthSelectStatement = sFinancialReportSelects(1)
             sMonthSelect = GetValueForVariable(sMonthSelectStatement, "name")
@@ -251,15 +244,13 @@ Sub LogintoiTunesConnect()
                             objHTTP.send (sBodyString)
         
                 sEarningsRepsonse = objHTTP.responseText
-                
-                Call SaveStringToFile(sEarningsRepsonse, "D:\sEarnsResponse.txt")
             End If
             
         Loop Until bExchangeRate = False
         
         
         
-        If Not cERs Is Nothing Then Call PutExchangeRatesInWorksheet(ThisWorkbook.Worksheets("Exchange Rates"), cERs)
+        If Not cers Is Nothing Then Call PutExchangeRatesInWorksheet(ThisWorkbook.Worksheets("Exchange Rates"), cers)
 
     End If
 
@@ -382,7 +373,7 @@ Sub LogintoiTunesConnect()
                     Next jj
         
                     If (VBA.Len(sRegionSelected) > 0 And VBA.Len(sSubmitName) > 0) Then
-                        sFinancialReportName = sVendorID & "_" & ReturnAbbreviatedMonth(sMonthYearSelected) & VBA.Right$(sMonthYearSelected, 2) & "_" & ReturnReportRegionAbbreviated(sRegionSelected)
+                        sFinancialReportName = OptVendorID.Value & "_" & ReturnAbbreviatedMonth(sMonthYearSelected) & VBA.Right$(sMonthYearSelected, 2) & "_" & ReturnReportRegionAbbreviated(sRegionSelected)
         
                         'Check to make sure we haven't downloaded the report already
                         On Error Resume Next
