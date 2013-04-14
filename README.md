@@ -11,6 +11,7 @@ It can also read in monthly financial reports already downloaded from the iTunes
 
 Limitations:
 -There is no way (that I'm aware of) to POST to a URL within the Mac version of Excel (the PC version uses MSXML2.ServerXMLHTTP).  If you know a way (any way from within Excel on Mac then post here http://stackoverflow.com/q/14986015/1733206 and let me know).
+-You need to have 7zip installed in order to extract the downloaded zip files.  Need to put some error handling in for that I think....
 -The program only downloads the reports for the default vendor ID.  I only have a single vendor ID so haven't implemented downloading from multiple vendors.
 -The vendor ID is only used to save the files in the same manner as downloaded from the iTunes Connect website.  Any string can be used here.
 -If any particular exchange rate is low (ie Japanese Yen to, well, pretty much anything) there are minor rounding errors, normally only a cent or two.
